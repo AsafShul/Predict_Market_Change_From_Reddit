@@ -39,10 +39,10 @@ class DatabaseFormatter:
 
     @staticmethod
     def _label_data(path, eps=0.5):
-        df = pd.read_feather(path)
-        df['time'] = pd.to_datetime(df['time']).dt.date
+        df = pd.read_csv(path)
+        df['date'] = pd.to_datetime(df['date']).dt.date
 
-        df = df.set_index('time')
+        df = df.set_index('date')
         percent_change = (1 - df.close / df.open) * 100
         labels = ((percent_change.abs() > eps) * np.sign(percent_change)).astype(int).shift(-1).dropna()
         return labels
