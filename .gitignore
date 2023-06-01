@@ -1,3 +1,10 @@
 .idea/
 *.xml
 *.iml
+.DS_Store
+*/.DS_Store
+*/*/.DS_Store
+*/*/*/.DS_Store
+data/
+zstd-1.5.5/
+zstd-1.5.5.tar
