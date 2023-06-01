@@ -6,10 +6,11 @@ from tqdm import tqdm
 import numpy as np
 import pandas as pd
 
+import torch
 from transformers import AutoModelForSequenceClassification
 from transformers import AutoTokenizer, AutoConfig
 from scipy.special import softmax
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score
 
 from get_dataset import Datasets
 
@@ -20,9 +21,13 @@ MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 
 class RedditStockPredictionBaseline:
     def __init__(self):
+        self.device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+
         self.model = AutoModelForSequenceClassification.from_pretrained(MODEL)
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL)
         self.config = AutoConfig.from_pretrained(MODEL)
+
+        self.model.to(self.device)
 
         self.datasets = Datasets()
 
@@ -38,8 +43,9 @@ class RedditStockPredictionBaseline:
         text = self.preprocess(text)
         encoded_input = self.tokenizer(text, return_tensors='pt',
                                        truncation=True, padding=True, max_length=ROBERTA_MAX_LENGTH)
+        encoded_input = encoded_input.to(self.device)
         output = self.model(**encoded_input)
-        scores = output[0][0].detach().numpy()
+        scores = output[0][0].cpu().detach().numpy()
         if return_scores:
             return scores
 
@@ -62,12 +68,19 @@ class RedditStockPredictionBaseline:
 
         results = pd.DataFrame(columns=['true', 'predicted'])
 
+        counter = 0
         for day, df in tqdm(by_day, total=len(by_day), desc="Testing day by day"):
+            counter += 1
+            if counter > 10:
+                break
+
             predictions = np.empty((0, 3))
 
             labels = df.label.unique()
             assert len(labels) == 1
             label = labels[0]
+
+            print(f"Day {day} has {df.shape[0]} posts")
 
             for i, row in df.iterrows():
                 prediction = self.predict(row.post, return_scores=True)
@@ -80,13 +93,16 @@ class RedditStockPredictionBaseline:
             results.loc[day] = [label, day_prediction]
 
         score = f1_score(results.true, results.predicted, average='macro')
-        return score
+        accuracy = accuracy_score(results.true, results.predicted)
+
+        return score, accuracy
 
 
 def main():
     r = RedditStockPredictionBaseline()
-    score = r.test()
+    score, accuracy = r.test()
     print("F1 Score:", score)
+    print("Accuracy:", accuracy)
 
 
 if __name__ == "__main__":
