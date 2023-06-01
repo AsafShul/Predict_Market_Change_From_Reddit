@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     bets_path = '../data/reddit/wallStreetBets/wallstreetbets_submissions.csv'
     stocks_path = '../data/reddit/stocks/stocks_submissions.csv'
-    labels_path = '../data/AAPL/AAPL_1day_20210730_20230531.ftr.zstd'
+    labels_path = '../data/spy/spy.csv'
     output_path = '../data/formatted_df.ftr.zstd'
 
     df = DatabaseFormatter.format(stock_data_path_=stocks_path, bets_data_path_=bets_path,
