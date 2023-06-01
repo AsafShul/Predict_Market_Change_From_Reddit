@@ -68,19 +68,12 @@ class RedditStockPredictionBaseline:
 
         results = pd.DataFrame(columns=['true', 'predicted'])
 
-        counter = 0
         for day, df in tqdm(by_day, total=len(by_day), desc="Testing day by day"):
-            counter += 1
-            if counter > 10:
-                break
-
             predictions = np.empty((0, 3))
 
             labels = df.label.unique()
             assert len(labels) == 1
             label = labels[0]
-
-            print(f"Day {day} has {df.shape[0]} posts")
 
             for i, row in df.iterrows():
                 prediction = self.predict(row.post, return_scores=True)
