@@ -1,12 +1,12 @@
 import os
-import wandb
+# import wandb
 import numpy as np
 import pandas as pd
 import datetime as dt
 
 from tqdm import tqdm
 from evaluate import load
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, accuracy_score
 
 from get_dataset import Datasets
 
@@ -26,7 +26,7 @@ ROBERTA_MAX_LENGTH = 512
 MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 
 
-class RedditStockPredictionBaseline:
+class RedditStockPredictionFinetune:
     def __init__(self):
         self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache")
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL)
@@ -58,15 +58,15 @@ class RedditStockPredictionBaseline:
 
     def get_tokenizer_func(self, tokenizer):
         def preprocess_function(examples):
-            result = tokenizer(examples['text'], truncation=True, padding=True,
-                               max_length=ROBERTA_MAX_LENGTH, return_tensors='pt')
+            result = tokenizer(examples['text'], truncation=True,
+                               max_length=ROBERTA_MAX_LENGTH)  #, return_tensors='pt')
             return result
 
         return preprocess_function
 
     def train(self):
-        wandb.init(project="reddit-stock-prediction",
-                   name=f"reddit-stock-prediction_{dt.datetime.now()}")
+        # wandb.init(project="reddit-stock-prediction",
+        #            name=f"reddit-stock-prediction_{dt.datetime.now()}")
         train_set = self.datasets.train_set.rename(columns={'post': 'text'})
         val_set = self.datasets.val_set.rename(columns={'post': 'text'})
 
@@ -79,8 +79,8 @@ class RedditStockPredictionBaseline:
         train_set = datasets.Dataset.from_pandas(train_set)
         val_set = datasets.Dataset.from_pandas(val_set)
 
-        train_set = train_set.map(self.pre_process_func, batched=True, batch_size=None)
-        val_set = val_set.map(self.pre_process_func, batched=True, batch_size=None)
+        train_set = train_set.map(self.pre_process_func, batched=True)
+        val_set = val_set.map(self.pre_process_func, batched=True)
 
         trainer = Trainer(
             model=self.model,
@@ -95,7 +95,7 @@ class RedditStockPredictionBaseline:
         train_result = trainer.train()
         trainer.save_model(f'models/{MODEL}')
         test_score = self.test()
-        wandb.finish()
+        # wandb.finish()
 
         return train_result, test_score
 
@@ -128,18 +128,20 @@ class RedditStockPredictionBaseline:
             results.loc[day] = [label, day_prediction]
 
         score = f1_score(results.true, results.predicted, average='macro')
-        return score
+        accuracy = accuracy_score(results.true, results.predicted)
+        return score, accuracy
 
 
 def main():
-    wandb.login(key=os.environ["WANDB_API_KEY"])
-    r = RedditStockPredictionBaseline()
+    # wandb.login(key=os.environ["WANDB_API_KEY"])
+    r = RedditStockPredictionFinetune()
     train_results, test_score = r.train()
     print('train_results:')
     print(train_results)
 
-    test_score = r.test()
-    print("F1 Score:", test_score)
+    f1, accuracy = r.test()
+    print("F1 Score:", f1)
+    print("Accuracy Score:", accuracy)
 
 
 if __name__ == "__main__":
