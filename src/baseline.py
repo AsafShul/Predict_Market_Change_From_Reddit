@@ -36,7 +36,7 @@ class RedditStockPredictionBaseline:
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
         text = text.replace('\t', ' ')
-        text = ' '.join(('http' if w.startswith('http') else w) for w in text.split(' '))
+        text = ' '.join(('http' if w.startswith('http') else w) for w in text.split())
         return text
 
     def predict(self, text, return_scores=False):
@@ -46,19 +46,10 @@ class RedditStockPredictionBaseline:
         encoded_input = encoded_input.to(self.device)
         output = self.model(**encoded_input)
         scores = output[0][0].cpu().detach().numpy()
-        if return_scores:
-            return scores
-
         scores = softmax(scores)
 
-        # ranking = np.argsort(scores)[::-1]
-
-        # for i in range(scores.shape[0]):
-        #     l = self.config.id2label[ranking[i]]
-        #     s = scores[ranking[i]]
-        #     print(f"{i + 1}) {l} {np.round(float(s), 4)}")
-
-        # return ranking[0]
+        if return_scores:
+            return scores
 
         return scores.argmax()
 
@@ -76,11 +67,17 @@ class RedditStockPredictionBaseline:
             label = labels[0]
 
             for i, row in df.iterrows():
-                prediction = self.predict(row.post, return_scores=True)
+                pred = self.predict(row.post)
+                prediction = np.zeros(3)
+                prediction[pred] = 1
                 predictions = np.vstack((predictions, prediction))
 
-            scores = predictions.mean(axis=0)
-            # scores = softmax(scores)
+            comments = df.num_comments + 1
+            weights = softmax(comments)
+
+            weighted_predictions = (predictions.T * weights).T
+
+            scores = weighted_predictions.sum(axis=0)
             day_prediction = scores.argmax()
 
             results.loc[day] = [label, day_prediction]
