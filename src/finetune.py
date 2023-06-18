@@ -1,5 +1,5 @@
 import os
-# import wandb
+import wandb
 import numpy as np
 import pandas as pd
 import datetime as dt
@@ -65,8 +65,8 @@ class RedditStockPredictionFinetune:
         return preprocess_function
 
     def train(self):
-        # wandb.init(project="reddit-stock-prediction",
-        #            name=f"reddit-stock-prediction_{dt.datetime.now()}")
+        wandb.init(project="reddit-stock-prediction",
+                   name=f"reddit-stock-prediction_{dt.datetime.now()}")
         train_set = self.datasets.train_set.rename(columns={'post': 'text'})
         val_set = self.datasets.val_set.rename(columns={'post': 'text'})
 
@@ -95,7 +95,7 @@ class RedditStockPredictionFinetune:
         train_result = trainer.train()
         trainer.save_model(f'models/{MODEL}')
         test_score = self.test()
-        # wandb.finish()
+        wandb.finish()
 
         return train_result, test_score
 
@@ -133,7 +133,7 @@ class RedditStockPredictionFinetune:
 
 
 def main():
-    # wandb.login(key=os.environ["WANDB_API_KEY"])
+    wandb.login(key=os.environ["WANDB_API_KEY"] if "WANDB_API_KEY" in os.environ else None)
     r = RedditStockPredictionFinetune()
     train_results, test_score = r.train()
     print('train_results:')
