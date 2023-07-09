@@ -24,6 +24,7 @@ from transformers import (
 ROBERTA_MAX_LENGTH = 512
 
 MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
+WANDB_DIR = os.path.join('..', 'wandb-logs')
 
 
 class RedditStockPredictionFinetune:
@@ -134,6 +135,9 @@ class RedditStockPredictionFinetune:
 
 
 def main():
+    os.environ['WANDB_DIR'] = WANDB_DIR
+    os.environ['WANDB_CACHE_DIR'] = WANDB_DIR
+    os.environ['WANDB_CONFIG_DIR'] = WANDB_DIR
     wandb.login(key=os.environ["WANDB_API_KEY"] if "WANDB_API_KEY" in os.environ else None)
     r = RedditStockPredictionFinetune()
     train_results, test_score = r.train()
