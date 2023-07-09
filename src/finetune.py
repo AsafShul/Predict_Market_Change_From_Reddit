@@ -66,7 +66,8 @@ class RedditStockPredictionFinetune:
 
     def train(self):
         wandb.init(project="reddit-stock-prediction",
-                   name=f"reddit-stock-prediction_{dt.datetime.now()}")
+                   name=f"reddit-stock-prediction_{dt.datetime.now()}",
+                   dir=os.path.join('..', 'wandb-logs'))
         train_set = self.datasets.train_set.rename(columns={'post': 'text'})
         val_set = self.datasets.val_set.rename(columns={'post': 'text'})
 
