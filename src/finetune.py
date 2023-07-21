@@ -65,7 +65,7 @@ class RedditStockPredictionFinetune:
     def get_tokenizer_func(self, tokenizer):
         def preprocess_function(examples):
             result = tokenizer(examples['text'], truncation=True,
-                               max_length=ROBERTA_MAX_LENGTH, return_tensors='pt')  # TODO: comment out the rt=pt?
+                               max_length=ROBERTA_MAX_LENGTH)  #, return_tensors='pt')
             return result
 
         return preprocess_function
