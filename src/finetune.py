@@ -36,7 +36,7 @@ class RedditStockPredictionFinetune:
         self.config = AutoConfig.from_pretrained(MODEL)
         self.datasets = Datasets()
         self.pre_process_func = self.get_tokenizer_func(self.tokenizer)
-        self.training_args = TrainingArguments(output_dir="results",
+        self.training_args = TrainingArguments(output_dir=os.path.join('..', 'results', 'second_run'),
                                                evaluation_strategy="epoch",
                                                save_strategy="epoch",
                                                optim="adamw_torch",
