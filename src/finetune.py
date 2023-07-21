@@ -39,7 +39,8 @@ class RedditStockPredictionFinetune:
         self.training_args = TrainingArguments(output_dir="results",
                                                evaluation_strategy="epoch",
                                                save_strategy="epoch",
-                                               optim="adamw_torch")
+                                               optim="adamw_torch",
+                                               num_train_epochs=10)
 
     @staticmethod
     def preprocess(text):
