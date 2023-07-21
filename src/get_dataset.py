@@ -42,3 +42,12 @@ class Datasets:
         if self._test_set is None:
             self._test_set = self._get_dataset(self.full_dataset, DST.TEST_START, DST.TEST_END)
         return self._test_set
+
+
+if __name__ == '__main__':
+    datasets = Datasets()
+    print("Full dataset:", datasets.full_dataset.shape[0])
+    print("Train set:", datasets.train_set.shape[0])
+    print("Val set:", datasets.val_set.shape[0])
+    print("Test set:", datasets.test_set.shape[0])
+

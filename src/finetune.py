@@ -1,8 +1,9 @@
 import os
+import datetime as dt
 import wandb
 import numpy as np
 import pandas as pd
-import datetime as dt
+import torch
 
 from tqdm import tqdm
 from evaluate import load
@@ -29,14 +30,16 @@ WANDB_DIR = os.path.join('..', 'wandb-logs')
 
 class RedditStockPredictionFinetune:
     def __init__(self):
-        self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache")
+        self.device = torch.device('cuda:0')
+        self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache").to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL)
         self.config = AutoConfig.from_pretrained(MODEL)
         self.datasets = Datasets()
         self.pre_process_func = self.get_tokenizer_func(self.tokenizer)
         self.training_args = TrainingArguments(output_dir="results",
                                                evaluation_strategy="epoch",
-                                               save_strategy="epoch")
+                                               save_strategy="epoch",
+                                               optim="adamw_torch")
 
     @staticmethod
     def preprocess(text):
@@ -52,15 +55,16 @@ class RedditStockPredictionFinetune:
 
         def compute_metrics(p: EvalPrediction):
             preds = np.argmax(p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions, axis=1)
-            result = metric.compute(predictions=preds, references=p.label_ids)[metric_name]
-            return {metric_name: result}
+            return metric.compute(predictions=preds, references=p.label_ids)
+            # result = metric.compute(predictions=preds, references=p.label_ids)[metric_name]
+            # return {metric_name: result}
 
         return compute_metrics
 
     def get_tokenizer_func(self, tokenizer):
         def preprocess_function(examples):
             result = tokenizer(examples['text'], truncation=True,
-                               max_length=ROBERTA_MAX_LENGTH)  #, return_tensors='pt')
+                               max_length=ROBERTA_MAX_LENGTH, return_tensors='pt')  # TODO: comment out the rt=pt?
             return result
 
         return preprocess_function
@@ -92,7 +96,6 @@ class RedditStockPredictionFinetune:
             compute_metrics=self.get_metric_func('accuracy'),
             tokenizer=self.tokenizer,
         )
-
 
         train_result = trainer.train()
         trainer.save_model(f'models/{MODEL}')
@@ -139,12 +142,15 @@ def main():
     os.environ['WANDB_CACHE_DIR'] = WANDB_DIR
     os.environ['WANDB_CONFIG_DIR'] = WANDB_DIR
     wandb.login(key=os.environ["WANDB_API_KEY"] if "WANDB_API_KEY" in os.environ else None)
+
     r = RedditStockPredictionFinetune()
     train_results, test_score = r.train()
+
     print('train_results:')
     print(train_results)
 
     f1, accuracy = r.test()
+
     print("F1 Score:", f1)
     print("Accuracy Score:", accuracy)
 
