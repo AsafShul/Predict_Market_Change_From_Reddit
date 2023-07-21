@@ -40,7 +40,7 @@ class RedditStockPredictionFinetune:
                                                evaluation_strategy="epoch",
                                                save_strategy="epoch",
                                                optim="adamw_torch",
-                                               num_train_epochs=10)
+                                               num_train_epochs=12)
 
     @staticmethod
     def preprocess(text):
@@ -123,7 +123,7 @@ class RedditStockPredictionFinetune:
 
             for i, row in df.iterrows():
                 encoded_input = self.tokenizer(row.text, return_tensors='pt',
-                                               truncation=True, padding=True, max_length=ROBERTA_MAX_LENGTH)
+                                               truncation=True, padding=True, max_length=ROBERTA_MAX_LENGTH).to(self.device)
                 prediction = self.model(**encoded_input)
                 predictions = np.vstack((predictions, prediction.logits.detach().numpy()))
 
