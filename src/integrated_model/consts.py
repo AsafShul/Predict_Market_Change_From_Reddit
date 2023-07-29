@@ -2,7 +2,7 @@
 # coding: utf-8
 
 
-POSTS_PER_DAY = 64
+POSTS_PER_DAY = 16
 
 golden_ratio = (1 + 5 ** 0.5) / 2
 
