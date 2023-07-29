@@ -63,7 +63,8 @@ class RedditStockPredictionTraining:
                                                save_strategy="epoch",
                                                optim="adamw_torch",
                                                num_train_epochs=12,
-                                               per_device_train_batch_size=2)
+                                               per_device_train_batch_size=2,
+                                               per_gpu_eval_batch_size=2)
         self.trainer = None
 
     @staticmethod
