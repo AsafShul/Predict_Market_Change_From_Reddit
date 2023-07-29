@@ -124,7 +124,7 @@ class RedditStockPredictionFinetune:
                 encoded_input = self.tokenizer(row.text, return_tensors='pt',
                                                truncation=True, padding=True, max_length=ROBERTA_MAX_LENGTH).to(self.device)
                 prediction = self.model(**encoded_input)
-                predictions = np.vstack((predictions, prediction.logits.detach().numpy()))
+                predictions = np.vstack((predictions, prediction.logits.detach().cpu().numpy()))
 
             scores = predictions.mean(axis=0)
             # scores = softmax(scores)

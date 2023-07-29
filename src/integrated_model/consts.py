@@ -2,16 +2,16 @@
 # coding: utf-8
 
 
-POSTS_PER_DAY = 10
+POSTS_PER_DAY = 64
 
 golden_ratio = (1 + 5 ** 0.5) / 2
 
-FC_INPUT_DIM = 2 * POSTS_PER_DAY
-FC_OUTPUT_DIM = int(2 * POSTS_PER_DAY * golden_ratio)
+FC_INPUT_DIM = 4 * POSTS_PER_DAY
+FC_OUTPUT_DIM = int(FC_INPUT_DIM * golden_ratio)
 
 BASE_MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 
-
+ROBERTA_MAX_LENGTH = 512
 
 
 import os
@@ -26,6 +26,7 @@ class DatasetSplitTimes:
 
 
 DATA_DIR = os.path.join('..',
+                        '..',
                         'data')
 DATASET_PATH = os.path.join(DATA_DIR,
                             'formatted_df.ftr.zstd')

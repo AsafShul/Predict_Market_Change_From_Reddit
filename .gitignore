@@ -15,3 +15,5 @@ __pycache__/
 cache/
 models/
 results/
+wandb-logs/
+src/integrated_model/wandb/
