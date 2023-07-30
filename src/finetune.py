@@ -28,14 +28,14 @@ ROBERTA_MAX_LENGTH = 512
 MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 WANDB_DIR = os.path.join('..', 'wandb-logs')
 WANDB_API_KEY = 'b7810f968d2bea395c268dab82307d9e5d443533'
-CHECKPOINT_DIR = "../results/second_run/checkpoint-220620/"
+# CHECKPOINT_DIR = "../results/second_run/checkpoint-220620/"
 
 
 class RedditStockPredictionFinetune:
     def __init__(self):
         self.device = torch.device('cuda:0')
-        self.model = AutoModelForSequenceClassification.from_pretrained(CHECKPOINT_DIR, cache_dir="./cache").to(self.device)
-        # self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache").to(self.device)
+        # self.model = AutoModelForSequenceClassification.from_pretrained(CHECKPOINT_DIR, cache_dir="./cache").to(self.device)
+        self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache").to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL)
         self.config = AutoConfig.from_pretrained(MODEL)
         self.datasets = Datasets()
@@ -157,10 +157,10 @@ def main():
     wandb.login(key=WANDB_API_KEY)
 
     r = RedditStockPredictionFinetune()
-    # train_results = r.train()
-    #
-    # print('train_results:')
-    # print(train_results)
+    train_results = r.train()
+
+    print('train_results:')
+    print(train_results)
 
     f1, accuracy = r.test()
 

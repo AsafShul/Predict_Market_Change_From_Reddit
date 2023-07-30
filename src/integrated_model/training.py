@@ -25,15 +25,9 @@ from im_preprocess import IMPreprocess
 from im_dataset import IMDataset
 
 
-USE_WANDB = True
 WANDB_DIR = os.path.join('..', '..', 'wandb-logs')
 WANDB_API_KEY = 'b7810f968d2bea395c268dab82307d9e5d443533'
 BATCH_SIZE = 32
-
-
-def _wandb(func):
-    if USE_WANDB:
-        func()
 
 
 class RedditStockPredictionTraining:
@@ -85,9 +79,6 @@ class RedditStockPredictionTraining:
 
     def train(self):
         print("Training...")
-        _wandb(lambda: wandb.init(project="reddit-stock-prediction",
-                   name=f"reddit-stock-prediction_{dt.datetime.now()}",
-                   dir=os.path.join('../..', 'wandb-logs')))
 
         self.trainer = Trainer(
             model=self.model,
@@ -99,7 +90,6 @@ class RedditStockPredictionTraining:
 
         train_result = self.trainer.train()
         # self.trainer.save_model(os.path.join('..', '..', 'models', 'integrated_model'))
-        _wandb(lambda: wandb.finish())
 
         return train_result
 
@@ -124,10 +114,13 @@ class RedditStockPredictionTraining:
 
 
 def main():
-    _wandb(lambda: os.environ.update(dict(WANDB_DIR=WANDB_DIR,
-                                          WANDB_CACHE_DIR=WANDB_DIR,
-                                          WANDB_CONFIG_DIR=WANDB_DIR)))
-    _wandb(lambda: wandb.login(key=WANDB_API_KEY))
+    os.environ.update(dict(WANDB_DIR=WANDB_DIR,
+                           WANDB_CACHE_DIR=WANDB_DIR,
+                           WANDB_CONFIG_DIR=WANDB_DIR))
+    wandb.login(key=WANDB_API_KEY)
+    wandb.init(project="reddit-stock-prediction",
+               name=f"reddit-stock-prediction_{dt.datetime.now()}",
+               dir=os.path.join('../..', 'wandb-logs'))
 
     r = RedditStockPredictionTraining()
     train_results = r.train()
@@ -139,6 +132,8 @@ def main():
 
     print("F1 Score:", f1)
     print("Accuracy Score:", accuracy)
+
+    wandb.finish()
 
 
 if __name__ == "__main__":
