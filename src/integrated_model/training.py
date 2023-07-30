@@ -1,6 +1,7 @@
 import os
 import datetime as dt
 from tqdm import tqdm
+import json
 
 import numpy as np
 import pandas as pd
@@ -58,11 +59,13 @@ class RedditStockPredictionTraining:
         self.test_set = IMDataset(self.preprocessor.preprocess(self.datasets.test_set))
         print("\rDone preprocessing.")
 
-        self.training_args = TrainingArguments(output_dir=os.path.join('..', '..', 'results', 'second_run'),
+        self.output_dir = output_dir=os.path.join('..', '..', 'results', 'third_run')
+
+        self.training_args = TrainingArguments(output_dir=self.output_dir,
                                                evaluation_strategy="epoch",
-                                               save_strategy="epoch",
+                                               save_strategy="no",
                                                optim="adamw_torch",
-                                               num_train_epochs=12,
+                                               num_train_epochs=1,
                                                per_device_train_batch_size=2,
                                                per_device_eval_batch_size=2)
         self.trainer = None
@@ -109,6 +112,13 @@ class RedditStockPredictionTraining:
 
         score = f1_score(labels, predictions, average='macro')
         accuracy = accuracy_score(labels, predictions)
+
+        results = dict(score=score,
+                       accuracy=accuracy)
+
+        with open(os.path.join(self.output_dir, f'results_{dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.txt'), 'w') as f:
+            json.dump(results, f)
+
         return score, accuracy
 
 
