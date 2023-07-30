@@ -140,9 +140,15 @@ class RedditStockPredictionFinetune:
 
         print(results.true.to_numpy())
         print(results.predicted.to_numpy())
+        print(results.true.to_numpy().dtype)
+        print(results.predicted.to_numpy().dtype)
+        print(results.true.to_numpy(dtype=int))
+        print(results.predicted.to_numpy(dtype=int))
+        print(results.true.to_numpy(dtype=int).dtype)
+        print(results.predicted.to_numpy(dtype=int).dtype)
 
-        score = f1_score(results.true.to_numpy(), results.predicted.to_numpy(), average='macro')
-        accuracy = accuracy_score(results.true.to_numpy(), results.predicted.to_numpy())
+        score = f1_score(results.true.to_numpy(dtype=int), results.predicted.to_numpy(dtype=int), average='macro')
+        accuracy = accuracy_score(results.true.to_numpy(dtype=int), results.predicted.to_numpy(dtype=int))
 
         results = dict(score=score,
                        accuracy=accuracy)
