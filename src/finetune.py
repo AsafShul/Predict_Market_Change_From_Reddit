@@ -110,7 +110,7 @@ class RedditStockPredictionFinetune:
         return train_result
 
     def test(self):
-        test_set = self.datasets.test_set.iloc[:1000]
+        test_set = self.datasets.test_set
         test_set = test_set.rename(columns={'post': 'text'})
         test_set = test_set.set_index(pd.to_datetime(test_set.post_time))
         test_set.text = test_set.text.apply(self.preprocess)
@@ -137,15 +137,6 @@ class RedditStockPredictionFinetune:
             day_prediction = scores.argmax()
 
             results.loc[day] = [label, day_prediction]
-
-        print(results.true.to_numpy())
-        print(results.predicted.to_numpy())
-        print(results.true.to_numpy().dtype)
-        print(results.predicted.to_numpy().dtype)
-        print(results.true.to_numpy(dtype=int))
-        print(results.predicted.to_numpy(dtype=int))
-        print(results.true.to_numpy(dtype=int).dtype)
-        print(results.predicted.to_numpy(dtype=int).dtype)
 
         score = f1_score(results.true.to_numpy(dtype=int), results.predicted.to_numpy(dtype=int), average='macro')
         accuracy = accuracy_score(results.true.to_numpy(dtype=int), results.predicted.to_numpy(dtype=int))
