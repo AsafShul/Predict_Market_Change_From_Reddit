@@ -59,7 +59,7 @@ class RedditStockPredictionTraining:
                                                evaluation_strategy="epoch",
                                                save_strategy="no",
                                                optim="adamw_torch",
-                                               num_train_epochs=50,
+                                               num_train_epochs=150,
                                                per_device_train_batch_size=2,
                                                per_device_eval_batch_size=2,
                                                report_to="wandb")
