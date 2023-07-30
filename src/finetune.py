@@ -110,7 +110,8 @@ class RedditStockPredictionFinetune:
         return train_result
 
     def test(self):
-        test_set = self.datasets.test_set.rename(columns={'post': 'text'})
+        test_set = self.datasets.test_set.iloc[:1000]
+        test_set = test_set.rename(columns={'post': 'text'})
         test_set = test_set.set_index(pd.to_datetime(test_set.post_time))
         test_set.text = test_set.text.apply(self.preprocess)
         test_set.label = test_set.label.astype(int)
@@ -137,8 +138,18 @@ class RedditStockPredictionFinetune:
 
             results.loc[day] = [label, day_prediction]
 
-        score = f1_score(results.true, results.predicted, average='macro')
-        accuracy = accuracy_score(results.true, results.predicted)
+        print(type(results.true))
+        print(type(results.predicted))
+        print("\n")
+        print(results.true)
+        print(results.predicted)
+        print("\n")
+        print(type(results.true[0]))
+        print(type(results.predicted[0]))
+
+
+        score = f1_score(results.true.to_numpy(), results.predicted.to_numpy(), average='macro')
+        accuracy = accuracy_score(results.true.to_numpy(), results.predicted.to_numpy())
 
         results = dict(score=score,
                        accuracy=accuracy)
