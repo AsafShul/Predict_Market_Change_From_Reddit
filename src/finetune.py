@@ -138,15 +138,8 @@ class RedditStockPredictionFinetune:
 
             results.loc[day] = [label, day_prediction]
 
-        print(type(results.true))
-        print(type(results.predicted))
-        print("\n")
-        print(results.true)
-        print(results.predicted)
-        print("\n")
-        print(type(results.true[0]))
-        print(type(results.predicted[0]))
-
+        print(results.true.to_numpy())
+        print(results.predicted.to_numpy())
 
         score = f1_score(results.true.to_numpy(), results.predicted.to_numpy(), average='macro')
         accuracy = accuracy_score(results.true.to_numpy(), results.predicted.to_numpy())
