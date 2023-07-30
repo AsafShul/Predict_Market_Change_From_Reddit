@@ -59,15 +59,16 @@ class RedditStockPredictionTraining:
         self.test_set = IMDataset(self.preprocessor.preprocess(self.datasets.test_set))
         print("\rDone preprocessing.")
 
-        self.output_dir = output_dir=os.path.join('..', '..', 'results', 'third_run')
+        self.output_dir = os.path.join('..', '..', 'results', 'third_run')
 
         self.training_args = TrainingArguments(output_dir=self.output_dir,
                                                evaluation_strategy="epoch",
                                                save_strategy="no",
                                                optim="adamw_torch",
-                                               num_train_epochs=1,
+                                               num_train_epochs=50,
                                                per_device_train_batch_size=2,
-                                               per_device_eval_batch_size=2)
+                                               per_device_eval_batch_size=2,
+                                               report_to="wandb")
         self.trainer = None
 
     @staticmethod

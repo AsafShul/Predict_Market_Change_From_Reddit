@@ -1,5 +1,6 @@
 import os
 import datetime as dt
+import json
 import wandb
 import numpy as np
 import pandas as pd
@@ -26,17 +27,21 @@ ROBERTA_MAX_LENGTH = 512
 
 MODEL = f"cardiffnlp/twitter-roberta-base-sentiment-latest"
 WANDB_DIR = os.path.join('..', 'wandb-logs')
+WANDB_API_KEY = 'b7810f968d2bea395c268dab82307d9e5d443533'
+CHECKPOINT_DIR = "../results/second_run/checkpoint-220620/"
 
 
 class RedditStockPredictionFinetune:
     def __init__(self):
         self.device = torch.device('cuda:0')
-        self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache").to(self.device)
+        self.model = AutoModelForSequenceClassification.from_pretrained(CHECKPOINT_DIR, cache_dir="./cache").to(self.device)
+        # self.model = AutoModelForSequenceClassification.from_pretrained(MODEL, cache_dir="./cache").to(self.device)
         self.tokenizer = AutoTokenizer.from_pretrained(MODEL)
         self.config = AutoConfig.from_pretrained(MODEL)
         self.datasets = Datasets()
         self.pre_process_func = self.get_tokenizer_func(self.tokenizer)
-        self.training_args = TrainingArguments(output_dir=os.path.join('..', 'results', 'second_run'),
+        self.output_dir = os.path.join('..', 'results', 'second_run')
+        self.training_args = TrainingArguments(output_dir=self.output_dir,
                                                evaluation_strategy="epoch",
                                                save_strategy="epoch",
                                                optim="adamw_torch",
@@ -134,6 +139,14 @@ class RedditStockPredictionFinetune:
 
         score = f1_score(results.true, results.predicted, average='macro')
         accuracy = accuracy_score(results.true, results.predicted)
+
+        results = dict(score=score,
+                       accuracy=accuracy)
+
+        with open(os.path.join(self.output_dir, f'results_{dt.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}.txt'),
+                  'w') as f:
+            json.dump(results, f)
+
         return score, accuracy
 
 
@@ -141,13 +154,13 @@ def main():
     os.environ['WANDB_DIR'] = WANDB_DIR
     os.environ['WANDB_CACHE_DIR'] = WANDB_DIR
     os.environ['WANDB_CONFIG_DIR'] = WANDB_DIR
-    wandb.login(key=os.environ["WANDB_API_KEY"] if "WANDB_API_KEY" in os.environ else None)
+    wandb.login(key=WANDB_API_KEY)
 
     r = RedditStockPredictionFinetune()
-    train_results = r.train()
-
-    print('train_results:')
-    print(train_results)
+    # train_results = r.train()
+    #
+    # print('train_results:')
+    # print(train_results)
 
     f1, accuracy = r.test()
 
