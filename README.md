@@ -16,9 +16,6 @@ We experimented with different models to predict market trends:
 ## Results
 The unified-signal model achieved the best performance in predicting stock market trends, but the results did not surpass random-level choice. More hyper-parameter tuning and computational resources could potentially improve the model's performance.
 
-## How to Use
-The repository contains the code for data collection, preprocessing, model training, and evaluation. Follow the instructions in the repository to set up the environment and run the code.
-
 ## References
 - Vikram, P., et al. (2020). Tweeter Sentiment Analysis for Predicting Stock Market Trends.
 - Pagolu, N., et al. (2016). Sentiment Analysis of Financial News Articles for Predicting Stock Trends.
